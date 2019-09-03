@@ -6783,7 +6783,7 @@ var author$project$Main$SelectChap = function (a) {
 var author$project$Main$EvalTerm = function (a) {
 	return {$: 'EvalTerm', a: a};
 };
-var author$project$TaPL$displayLog = function (calc) {
+var author$project$TaPL$Calculus$display = function (calc) {
 	return A2(elm$core$List$map, calc.display, calc.logs);
 };
 var author$project$TaPL$display = F2(
@@ -6792,12 +6792,12 @@ var author$project$TaPL$display = F2(
 			case 'Chap0':
 				return _List_Nil;
 			case 'Chap4':
-				return author$project$TaPL$displayLog(model.chap4);
+				return author$project$TaPL$Calculus$display(model.chap4);
 			default:
-				return author$project$TaPL$displayLog(model.chap7);
+				return author$project$TaPL$Calculus$display(model.chap7);
 		}
 	});
-var author$project$TaPL$appendLog = F2(
+var author$project$TaPL$Calculus$appendLog = F2(
 	function (t, calc) {
 		return _Utils_update(
 			calc,
@@ -6814,6 +6814,15 @@ var elm$core$Maybe$andThen = F2(
 			return elm$core$Maybe$Nothing;
 		}
 	});
+var author$project$TaPL$Calculus$eval1 = function (calc) {
+	return A2(
+		elm$core$Maybe$map,
+		A2(elm_community$basics_extra$Basics$Extra$flip, author$project$TaPL$Calculus$appendLog, calc),
+		A2(
+			elm$core$Maybe$andThen,
+			calc.eval1(calc.init),
+			elm$core$List$head(calc.logs)));
+};
 var author$project$TaPL$eval1 = F2(
 	function (chap, model) {
 		switch (chap.$) {
@@ -6822,31 +6831,21 @@ var author$project$TaPL$eval1 = F2(
 			case 'Chap4':
 				return A2(
 					elm$core$Maybe$map,
-					function (t) {
+					function (calc) {
 						return _Utils_update(
 							model,
-							{
-								chap4: A2(author$project$TaPL$appendLog, t, model.chap4)
-							});
+							{chap4: calc});
 					},
-					A2(
-						elm$core$Maybe$andThen,
-						model.chap4.eval1(model.chap4.init),
-						elm$core$List$head(model.chap4.logs)));
+					author$project$TaPL$Calculus$eval1(model.chap4));
 			default:
 				return A2(
 					elm$core$Maybe$map,
-					function (t) {
+					function (calc) {
 						return _Utils_update(
 							model,
-							{
-								chap7: A2(author$project$TaPL$appendLog, t, model.chap7)
-							});
+							{chap7: calc});
 					},
-					A2(
-						elm$core$Maybe$andThen,
-						model.chap7.eval1(model.chap7.init),
-						elm$core$List$head(model.chap7.logs)));
+					author$project$TaPL$Calculus$eval1(model.chap7));
 		}
 	});
 var elm$core$List$intersperse = F2(
@@ -6990,7 +6989,7 @@ var author$project$TaPL$chapterToString = function (chap) {
 			return 'chap0';
 	}
 };
-var author$project$TaPL$initLog = function (calc) {
+var author$project$TaPL$Calculus$initLog = function (calc) {
 	return _Utils_update(
 		calc,
 		{logs: _List_Nil});
@@ -7006,6 +7005,16 @@ var elm$core$Result$map = F2(
 			return elm$core$Result$Err(e);
 		}
 	});
+var author$project$TaPL$Calculus$parse = F2(
+	function (s, calc) {
+		return A2(
+			elm$core$Result$map,
+			A2(
+				elm_community$basics_extra$Basics$Extra$flip,
+				author$project$TaPL$Calculus$appendLog,
+				author$project$TaPL$Calculus$initLog(calc)),
+			calc.parse(s));
+	});
 var author$project$TaPL$parse = F3(
 	function (chap, str, model) {
 		switch (chap.$) {
@@ -7014,31 +7023,21 @@ var author$project$TaPL$parse = F3(
 			case 'Chap4':
 				return A2(
 					elm$core$Result$map,
-					function (t) {
+					function (calc) {
 						return _Utils_update(
 							model,
-							{
-								chap4: A2(
-									author$project$TaPL$appendLog,
-									t,
-									author$project$TaPL$initLog(model.chap4))
-							});
+							{chap4: calc});
 					},
-					model.chap4.parse(str));
+					A2(author$project$TaPL$Calculus$parse, str, model.chap4));
 			default:
 				return A2(
 					elm$core$Result$map,
-					function (t) {
+					function (calc) {
 						return _Utils_update(
 							model,
-							{
-								chap7: A2(
-									author$project$TaPL$appendLog,
-									t,
-									author$project$TaPL$initLog(model.chap7))
-							});
+							{chap7: calc});
 					},
-					model.chap7.parse(str));
+					A2(author$project$TaPL$Calculus$parse, str, model.chap7));
 		}
 	});
 var elm$core$Basics$composeL = F3(

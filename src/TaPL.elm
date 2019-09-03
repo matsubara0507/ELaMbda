@@ -1,6 +1,7 @@
-module TaPL exposing (Calculus, Chapter(..), Model, chapterFromString, chapterToString, display, eval1, init, parse)
+module TaPL exposing (Chapter(..), Model, chapterFromString, chapterToString, display, eval1, init, parse)
 
 import Parser
+import TaPL.Calculus as Calculus exposing (Calculus)
 import TaPL.Chap4 as Chap4
 import TaPL.Chap4.Parser as Chap4
 import TaPL.Chap7 as Chap7
@@ -39,30 +40,6 @@ chapterToString chap =
             "chap0"
 
 
-type alias Calculus ctx t =
-    { eval1 : ctx -> t -> Maybe t
-    , display : t -> String
-    , parse : String -> Result (List Parser.DeadEnd) t
-    , init : ctx
-    , logs : List t
-    }
-
-
-appendLog : t -> Calculus ctx t -> Calculus ctx t
-appendLog t calc =
-    { calc | logs = t :: calc.logs }
-
-
-initLog : Calculus ctx t -> Calculus ctx t
-initLog calc =
-    { calc | logs = [] }
-
-
-displayLog : Calculus ctx t -> List String
-displayLog calc =
-    List.map calc.display calc.logs
-
-
 type alias Model =
     { chap4 : Calculus () Chap4.Term
     , chap7 : Calculus Chap7.Context Chap7.Term
@@ -95,14 +72,10 @@ eval1 chap model =
             Nothing
 
         Chap4 ->
-            List.head model.chap4.logs
-                |> Maybe.andThen (model.chap4.eval1 model.chap4.init)
-                |> Maybe.map (\t -> { model | chap4 = appendLog t model.chap4 })
+            Maybe.map (\calc -> { model | chap4 = calc }) (Calculus.eval1 model.chap4)
 
         Chap7 ->
-            List.head model.chap7.logs
-                |> Maybe.andThen (model.chap7.eval1 model.chap7.init)
-                |> Maybe.map (\t -> { model | chap7 = appendLog t model.chap7 })
+            Maybe.map (\calc -> { model | chap7 = calc }) (Calculus.eval1 model.chap7)
 
 
 display : Chapter -> Model -> List String
@@ -112,10 +85,10 @@ display chap model =
             []
 
         Chap4 ->
-            displayLog model.chap4
+            Calculus.display model.chap4
 
         Chap7 ->
-            displayLog model.chap7
+            Calculus.display model.chap7
 
 
 parse : Chapter -> String -> Model -> Result (List Parser.DeadEnd) Model
@@ -125,9 +98,7 @@ parse chap str model =
             Err []
 
         Chap4 ->
-            model.chap4.parse str
-                |> Result.map (\t -> { model | chap4 = appendLog t <| initLog model.chap4 })
+            Result.map (\calc -> { model | chap4 = calc }) (Calculus.parse str model.chap4)
 
         Chap7 ->
-            model.chap7.parse str
-                |> Result.map (\t -> { model | chap7 = appendLog t <| initLog model.chap7 })
+            Result.map (\calc -> { model | chap7 = calc }) (Calculus.parse str model.chap7)
