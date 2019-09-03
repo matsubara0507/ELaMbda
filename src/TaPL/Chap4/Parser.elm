@@ -1,20 +1,20 @@
-module Lambda.Parser exposing (ifParser, isZeroParser, parParser, parse, parser, predParser, succParser, termParser, valParser, value)
+module TaPL.Chap4.Parser exposing (ifParser, isZeroParser, parParser, parse, parser, predParser, succParser, termParser, valParser, value)
 
-import Lambda exposing (Term(..))
 import Parser exposing ((|.), (|=), Parser)
+import TaPL.Chap4 as Chap4 exposing (Term(..))
 
 
-parse : String -> Result (List Parser.DeadEnd) Lambda.Term
+parse : String -> Result (List Parser.DeadEnd) Term
 parse =
     Parser.run parser
 
 
-parser : Parser Lambda.Term
+parser : Parser Term
 parser =
     termParser |. Parser.end
 
 
-termParser : Parser Lambda.Term
+termParser : Parser Term
 termParser =
     Parser.oneOf
         [ valParser
@@ -26,7 +26,7 @@ termParser =
         ]
 
 
-ifParser : Parser Lambda.Term
+ifParser : Parser Term
 ifParser =
     Parser.succeed TmIf
         |. Parser.keyword "if"
@@ -42,7 +42,7 @@ ifParser =
         |= Parser.lazy (\_ -> termParser)
 
 
-succParser : Parser Lambda.Term
+succParser : Parser Term
 succParser =
     Parser.succeed TmSucc
         |. Parser.keyword "succ"
@@ -50,7 +50,7 @@ succParser =
         |= Parser.lazy (\_ -> termParser)
 
 
-predParser : Parser Lambda.Term
+predParser : Parser Term
 predParser =
     Parser.succeed TmPred
         |. Parser.keyword "pred"
@@ -58,7 +58,7 @@ predParser =
         |= Parser.lazy (\_ -> termParser)
 
 
-isZeroParser : Parser Lambda.Term
+isZeroParser : Parser Term
 isZeroParser =
     Parser.succeed TmIsZero
         |. Parser.keyword "iszero"
@@ -66,7 +66,7 @@ isZeroParser =
         |= Parser.lazy (\_ -> termParser)
 
 
-parParser : Parser Lambda.Term
+parParser : Parser Term
 parParser =
     Parser.succeed identity
         |. Parser.symbol "("
@@ -76,15 +76,15 @@ parParser =
         |. Parser.symbol ")"
 
 
-valParser : Parser Lambda.Term
+valParser : Parser Term
 valParser =
     Parser.oneOf
         [ value "true" TmTrue
         , value "false" TmFalse
-        , Parser.int |> Parser.map Lambda.fromInt
+        , Parser.int |> Parser.map Chap4.fromInt
         ]
 
 
-value : String -> Lambda.Term -> Parser Lambda.Term
+value : String -> Term -> Parser Term
 value kw t =
     Parser.map (always t) (Parser.keyword kw)

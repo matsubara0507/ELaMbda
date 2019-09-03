@@ -1,4 +1,4 @@
-module Lambda exposing (Term(..), display, eval, eval1, fromInt, isnumericval, isval, toInt)
+module TaPL.Chap4 exposing (Term(..), display, eval, eval1, fromInt, isnumericval, isval, toInt)
 
 
 type Term

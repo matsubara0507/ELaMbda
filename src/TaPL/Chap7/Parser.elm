@@ -1,11 +1,11 @@
-module Lambda.Parser exposing (parse)
+module TaPL.Chap7.Parser exposing (parse)
 
 import Basics.Extra exposing (flip)
 import Debug
 import Dict exposing (Dict)
-import Lambda exposing (Term(..))
 import Parser exposing ((|.), (|=), Parser)
 import Set
+import TaPL.Chap7 exposing (Term(..))
 
 
 type alias Context =
@@ -29,17 +29,17 @@ iniCtx =
     { env = Dict.empty, depth = 0 }
 
 
-parse : String -> Result (List Parser.DeadEnd) Lambda.Term
+parse : String -> Result (List Parser.DeadEnd) Term
 parse =
     Parser.run parser
 
 
-parser : Parser Lambda.Term
+parser : Parser Term
 parser =
     termParser iniCtx |. Parser.end
 
 
-termParser : Context -> Parser Lambda.Term
+termParser : Context -> Parser Term
 termParser ctx =
     Parser.oneOf
         [ parParser ctx
@@ -49,7 +49,7 @@ termParser ctx =
         |> Parser.andThen (appParser ctx)
 
 
-termWithoutAppParser : Context -> Parser Lambda.Term
+termWithoutAppParser : Context -> Parser Term
 termWithoutAppParser ctx =
     Parser.oneOf
         [ parParser ctx
@@ -58,7 +58,7 @@ termWithoutAppParser ctx =
         ]
 
 
-absParser : Context -> Parser Lambda.Term
+absParser : Context -> Parser Term
 absParser ctx =
     Parser.succeed identity
         |. Parser.symbol "\\"
@@ -70,13 +70,13 @@ absParser ctx =
         |> Parser.andThen (absParserN ctx)
 
 
-absParserN : Context -> String -> Parser Lambda.Term
+absParserN : Context -> String -> Parser Term
 absParserN ctx v =
     Parser.succeed (TmAbs v)
         |= Parser.lazy (\_ -> termParser <| pushVar v <| incrCtx ctx)
 
 
-appParser : Context -> Term -> Parser Lambda.Term
+appParser : Context -> Term -> Parser Term
 appParser ctx t =
     Parser.oneOf
         [ Parser.succeed (TmApp t)
@@ -87,7 +87,7 @@ appParser ctx t =
         ]
 
 
-varParser : Context -> Parser Lambda.Term
+varParser : Context -> Parser Term
 varParser ctx =
     varStrParser
         |> Parser.andThen (lookupVar ctx)
@@ -110,7 +110,7 @@ varStrParser =
         }
 
 
-parParser : Context -> Parser Lambda.Term
+parParser : Context -> Parser Term
 parParser ctx =
     Parser.succeed identity
         |. Parser.symbol "("

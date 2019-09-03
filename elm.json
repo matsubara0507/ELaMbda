@@ -1,7 +1,7 @@
 {
     "type": "application",
     "source-directories": [
-        "src/chap7"
+        "src"
     ],
     "elm-version": "0.19.0",
     "dependencies": {

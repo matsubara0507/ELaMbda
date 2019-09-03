@@ -1,4 +1,4 @@
-module Lambda exposing (Binding(..), Context, Term(..), ctxlength, display, dropIfEndsWith, dropIfStartsWith, eval, eval1, index2name, isval, pickfreshname, printtm, termShift, termSubst, termSubstTop)
+module TaPL.Chap7 exposing (Binding(..), Context, Term(..), ctxlength, display, dropIfEndsWith, dropIfStartsWith, eval, eval1, index2name, isval, pickfreshname, printtm, termShift, termSubst, termSubstTop)
 
 import Basics.Extra exposing (flip)
 import Debug

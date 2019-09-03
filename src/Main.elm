@@ -2,11 +2,10 @@ module Main exposing (main)
 
 import Browser
 import Html as Html exposing (..)
-import Html.Attributes exposing (class, placeholder, type_)
+import Html.Attributes exposing (attribute, class, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)
-import Lambda exposing (Term(..))
-import Lambda.Parser as Lambda
 import Parser
+import TaPL
 
 
 main : Program () Model Msg
@@ -21,20 +20,22 @@ main =
 
 type alias Model =
     { input : String
-    , exps : List Lambda.Term
     , error : String
+    , chap : TaPL.Chapter
+    , env : TaPL.Model
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model "" [] "", Cmd.none )
+    ( Model "" "" TaPL.Chap0 TaPL.init, Cmd.none )
 
 
 type Msg
     = InputText String
-    | ParseInput (Result (List Parser.DeadEnd) Term)
-    | EvalTerm (Maybe Term)
+    | SelectChap TaPL.Chapter
+    | ParseInput (Result (List Parser.DeadEnd) TaPL.Model)
+    | EvalTerm (Maybe TaPL.Model)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -43,14 +44,17 @@ update msg model =
         InputText txt ->
             ( { model | input = txt }, Cmd.none )
 
-        ParseInput (Ok t) ->
-            ( { model | exps = [ t ], error = "" }, Cmd.none )
+        SelectChap chap ->
+            ( { model | chap = chap, env = TaPL.init }, Cmd.none )
+
+        ParseInput (Ok env) ->
+            ( { model | env = env, error = "" }, Cmd.none )
 
         ParseInput (Err _) ->
-            ( { model | exps = [], error = "Can not parse" }, Cmd.none )
+            ( { model | env = TaPL.init, error = "Can not parse" }, Cmd.none )
 
-        EvalTerm (Just t) ->
-            ( { model | exps = t :: model.exps }, Cmd.none )
+        EvalTerm (Just env) ->
+            ( { model | env = env }, Cmd.none )
 
         EvalTerm _ ->
             ( { model | error = "Can not eval" }, Cmd.none )
@@ -60,7 +64,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ button
-            [ onClick (ParseInput <| Lambda.parse model.input)
+            [ onClick (ParseInput <| TaPL.parse model.chap model.input model.env)
             , class "btn my-2"
             , type_ "button"
             ]
@@ -72,7 +76,16 @@ view model =
             , placeholder "lambda calculus"
             ]
             []
-        , div [] (viewExps model)
+        , select
+            [ onInput (SelectChap << TaPL.chapterFromString)
+            , class "form-select"
+            , attribute "aria-label" "Important decision"
+            ]
+            [ option [] [ text "Select" ]
+            , option [ value (TaPL.chapterToString TaPL.Chap4) ] [ text (TaPL.chapterToString TaPL.Chap4) ]
+            , option [ value (TaPL.chapterToString TaPL.Chap7) ] [ text (TaPL.chapterToString TaPL.Chap7) ]
+            ]
+        , div [] (viewEnv model)
         , if String.isEmpty model.error then
             div [] []
 
@@ -81,26 +94,21 @@ view model =
         ]
 
 
-viewExps : Model -> List (Html Msg)
-viewExps model =
-    case model.exps of
+viewEnv : Model -> List (Html Msg)
+viewEnv model =
+    case TaPL.display model.chap model.env of
         [] ->
             []
 
-        x :: xs ->
-            [ List.reverse model.exps
-                |> List.map viewExp
+        logs ->
+            [ List.reverse logs
+                |> List.map (\log -> div [ class "my-1" ] [ text log ])
                 |> List.intersperse (div [ class "my-1" ] [ text "↓" ])
                 |> div []
             , button
-                [ onClick (EvalTerm <| Lambda.eval1 x)
+                [ onClick (EvalTerm <| TaPL.eval1 model.chap model.env)
                 , class "btn btn-sm my-2"
                 , type_ "button"
                 ]
                 [ text "Eval!" ]
             ]
-
-
-viewExp : Lambda.Term -> Html Msg
-viewExp t =
-    div [ class "my-1" ] [ text (Lambda.display t) ]
