@@ -1,5 +1,7 @@
 module TaPL.Chap4 exposing (Term(..), display, eval, eval1, fromInt, isnumericval, isval, syntax, toInt)
 
+import TaPL.Utils exposing (..)
+
 
 syntax : String
 syntax =
@@ -168,21 +170,3 @@ displayR t =
 
         ( _, TmIsZero t1 ) ->
             String.concat [ "(iszero ", displayR t1, ")" ]
-
-
-dropIfStartsWith : String -> String -> String
-dropIfStartsWith word s =
-    if String.startsWith word s then
-        String.dropLeft (String.length word) s
-
-    else
-        s
-
-
-dropIfEndsWith : String -> String -> String
-dropIfEndsWith word s =
-    if String.endsWith word s then
-        String.dropRight (String.length word) s
-
-    else
-        s

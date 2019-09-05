@@ -1,8 +1,9 @@
-module TaPL.Chap7 exposing (Binding(..), Context, Term(..), ctxlength, display, dropIfEndsWith, dropIfStartsWith, eval, eval1, index2name, isval, pickfreshname, printtm, syntax, termShift, termSubst, termSubstTop)
+module TaPL.Chap7 exposing (Binding(..), Context, Term(..), ctxlength, display, eval, eval1, index2name, isval, pickfreshname, printtm, syntax, termShift, termSubst, termSubstTop)
 
 import Basics.Extra exposing (flip)
 import Debug
 import List.Extra as List
+import TaPL.Utils exposing (..)
 
 
 syntax : String
@@ -172,21 +173,3 @@ eval ctx t =
 
     else
         Maybe.andThen (eval ctx) (eval1 ctx t)
-
-
-dropIfStartsWith : String -> String -> String
-dropIfStartsWith word s =
-    if String.startsWith word s then
-        String.dropLeft (String.length word) s
-
-    else
-        s
-
-
-dropIfEndsWith : String -> String -> String
-dropIfEndsWith word s =
-    if String.endsWith word s then
-        String.dropRight (String.length word) s
-
-    else
-        s

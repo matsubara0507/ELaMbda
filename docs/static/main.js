@@ -4670,7 +4670,7 @@ var elm$core$String$dropRight = F2(
 	});
 var elm$core$String$endsWith = _String_endsWith;
 var elm$core$String$length = _String_length;
-var author$project$TaPL$Chap4$dropIfEndsWith = F2(
+var author$project$TaPL$Utils$dropIfEndsWith = F2(
 	function (word, s) {
 		return A2(elm$core$String$endsWith, word, s) ? A2(
 			elm$core$String$dropRight,
@@ -4686,7 +4686,7 @@ var elm$core$String$dropLeft = F2(
 			string);
 	});
 var elm$core$String$startsWith = _String_startsWith;
-var author$project$TaPL$Chap4$dropIfStartsWith = F2(
+var author$project$TaPL$Utils$dropIfStartsWith = F2(
 	function (word, s) {
 		return A2(elm$core$String$startsWith, word, s) ? A2(
 			elm$core$String$dropLeft,
@@ -4699,10 +4699,10 @@ var elm$core$Basics$apR = F2(
 	});
 var author$project$TaPL$Chap4$display = function (t) {
 	return A2(
-		author$project$TaPL$Chap4$dropIfEndsWith,
+		author$project$TaPL$Utils$dropIfEndsWith,
 		')',
 		A2(
-			author$project$TaPL$Chap4$dropIfStartsWith,
+			author$project$TaPL$Utils$dropIfStartsWith,
 			'(',
 			author$project$TaPL$Chap4$displayR(t)));
 };
@@ -5638,20 +5638,6 @@ var elm$parser$Parser$run = F2(
 		}
 	});
 var author$project$TaPL$Chap4$Parser$parse = elm$parser$Parser$run(author$project$TaPL$Chap4$Parser$parser);
-var author$project$TaPL$Chap7$dropIfEndsWith = F2(
-	function (word, s) {
-		return A2(elm$core$String$endsWith, word, s) ? A2(
-			elm$core$String$dropRight,
-			elm$core$String$length(word),
-			s) : s;
-	});
-var author$project$TaPL$Chap7$dropIfStartsWith = F2(
-	function (word, s) {
-		return A2(elm$core$String$startsWith, word, s) ? A2(
-			elm$core$String$dropLeft,
-			elm$core$String$length(word),
-			s) : s;
-	});
 var elm$core$List$length = function (xs) {
 	return A3(
 		elm$core$List$foldl,
@@ -5828,10 +5814,10 @@ var author$project$TaPL$Chap7$display = function (t) {
 		'',
 		A2(
 			elm$core$Maybe$map,
-			author$project$TaPL$Chap7$dropIfEndsWith(')'),
+			author$project$TaPL$Utils$dropIfEndsWith(')'),
 			A2(
 				elm$core$Maybe$map,
-				author$project$TaPL$Chap7$dropIfStartsWith('('),
+				author$project$TaPL$Utils$dropIfStartsWith('('),
 				A2(author$project$TaPL$Chap7$printtm, _List_Nil, t))));
 };
 var author$project$TaPL$Chap7$TmAbs = F2(
