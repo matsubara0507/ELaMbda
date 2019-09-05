@@ -4811,6 +4811,7 @@ var author$project$TaPL$Chap4$eval1 = function (t) {
 			return elm$core$Maybe$Nothing;
 	}
 };
+var author$project$TaPL$Chap4$syntax = '\nt  := v\n    | if t then t else t\n    | succ t\n    | pred t\n    | iszero t\n\nv  := true | false | nv\nnv := [natural number]\n    ';
 var elm$core$Basics$gt = _Utils_gt;
 var elm$core$Basics$sub = _Basics_sub;
 var author$project$TaPL$Chap4$fromInt = function (n) {
@@ -5948,6 +5949,7 @@ var author$project$TaPL$Chap7$eval1 = F2(
 			return elm$core$Maybe$Nothing;
 		}
 	});
+var author$project$TaPL$Chap7$syntax = '\nt := x        [variable]\n   | \\x . t   [abstraction]\n   | t t      [application]\n    ';
 var elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var elm$core$Dict$empty = elm$core$Dict$RBEmpty_elm_builtin;
 var author$project$TaPL$Chap7$Parser$iniCtx = {depth: 0, env: elm$core$Dict$empty};
@@ -6409,9 +6411,10 @@ var author$project$TaPL$init = {
 		},
 		init: _Utils_Tuple0,
 		logs: _List_Nil,
-		parse: author$project$TaPL$Chap4$Parser$parse
+		parse: author$project$TaPL$Chap4$Parser$parse,
+		syntax: author$project$TaPL$Chap4$syntax
 	},
-	chap7: {display: author$project$TaPL$Chap7$display, eval1: author$project$TaPL$Chap7$eval1, init: _List_Nil, logs: _List_Nil, parse: author$project$TaPL$Chap7$Parser$parse}
+	chap7: {display: author$project$TaPL$Chap7$display, eval1: author$project$TaPL$Chap7$eval1, init: _List_Nil, logs: _List_Nil, parse: author$project$TaPL$Chap7$Parser$parse, syntax: author$project$TaPL$Chap7$syntax}
 };
 var elm$core$Result$isOk = function (result) {
 	if (result.$ === 'Ok') {
@@ -7040,6 +7043,17 @@ var author$project$TaPL$parse = F3(
 					A2(author$project$TaPL$Calculus$parse, str, model.chap7));
 		}
 	});
+var author$project$TaPL$syntax = F2(
+	function (chap, model) {
+		switch (chap.$) {
+			case 'Chap0':
+				return '';
+			case 'Chap4':
+				return model.chap4.syntax;
+			default:
+				return model.chap7.syntax;
+		}
+	});
 var elm$core$Basics$composeL = F3(
 	function (g, f, x) {
 		return g(
@@ -7047,6 +7061,7 @@ var elm$core$Basics$composeL = F3(
 	});
 var elm$html$Html$input = _VirtualDom_node('input');
 var elm$html$Html$option = _VirtualDom_node('option');
+var elm$html$Html$pre = _VirtualDom_node('pre');
 var elm$html$Html$select = _VirtualDom_node('select');
 var elm$virtual_dom$VirtualDom$attribute = F2(
 	function (key, value) {
@@ -7097,6 +7112,17 @@ var author$project$Main$view = function (model) {
 		_List_Nil,
 		_List_fromArray(
 			[
+				A2(
+				elm$html$Html$pre,
+				_List_fromArray(
+					[
+						elm$html$Html$Attributes$class('text-left d-flex flex-justify-center')
+					]),
+				_List_fromArray(
+					[
+						elm$html$Html$text(
+						A2(author$project$TaPL$syntax, model.chap, model.env))
+					])),
 				A2(
 				elm$html$Html$button,
 				_List_fromArray(

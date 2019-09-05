@@ -1,4 +1,4 @@
-module TaPL exposing (Chapter(..), Model, chapterFromString, chapterToString, display, eval1, init, parse)
+module TaPL exposing (Chapter(..), Model, chapterFromString, chapterToString, display, eval1, init, parse, syntax)
 
 import Parser
 import TaPL.Calculus as Calculus exposing (Calculus)
@@ -54,6 +54,7 @@ init =
         , parse = Chap4.parse
         , init = ()
         , logs = []
+        , syntax = Chap4.syntax
         }
     , chap7 =
         { eval1 = Chap7.eval1
@@ -61,6 +62,7 @@ init =
         , parse = Chap7.parse
         , init = []
         , logs = []
+        , syntax = Chap7.syntax
         }
     }
 
@@ -102,3 +104,16 @@ parse chap str model =
 
         Chap7 ->
             Result.map (\calc -> { model | chap7 = calc }) (Calculus.parse str model.chap7)
+
+
+syntax : Chapter -> Model -> String
+syntax chap model =
+    case chap of
+        Chap0 ->
+            ""
+
+        Chap4 ->
+            model.chap4.syntax
+
+        Chap7 ->
+            model.chap7.syntax

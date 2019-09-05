@@ -10,6 +10,7 @@ type alias Calculus ctx t =
     , display : t -> String
     , init : ctx
     , logs : List t
+    , syntax : String
     }
 
 

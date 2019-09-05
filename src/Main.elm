@@ -63,7 +63,9 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ button
+        [ pre [ class "text-left d-flex flex-justify-center" ]
+            [ text (TaPL.syntax model.chap model.env) ]
+        , button
             [ onClick (ParseInput <| TaPL.parse model.chap model.input model.env)
             , class "btn my-2"
             , type_ "button"

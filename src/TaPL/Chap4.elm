@@ -1,4 +1,18 @@
-module TaPL.Chap4 exposing (Term(..), display, eval, eval1, fromInt, isnumericval, isval, toInt)
+module TaPL.Chap4 exposing (Term(..), display, eval, eval1, fromInt, isnumericval, isval, syntax, toInt)
+
+
+syntax : String
+syntax =
+    """
+t  := v
+    | if t then t else t
+    | succ t
+    | pred t
+    | iszero t
+
+v  := true | false | nv
+nv := [natural number]
+    """
 
 
 type Term
