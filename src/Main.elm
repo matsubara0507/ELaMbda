@@ -135,7 +135,7 @@ view model =
     in
     { title = title
     , body =
-        [ div [ class "Box text-center mt-3 container-sm" ]
+        [ div [ class "Box text-center my-3 container-sm" ]
             [ div [ class "Box-header" ]
                 [ h1 [ class "Box-title" ]
                     [ a [ href link ] [ text title ] ]
