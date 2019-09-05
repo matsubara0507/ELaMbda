@@ -1,38 +1,51 @@
 module Main exposing (main)
 
 import Browser
+import Browser.Navigation as Nav
 import Html as Html exposing (..)
-import Html.Attributes exposing (attribute, class, placeholder, type_, value)
+import Html.Attributes exposing (attribute, class, href, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Parser
 import TaPL
+import Url exposing (Url)
+import Url.Parser as Url exposing ((</>), (<?>))
+import Url.Parser.Query as UrlQuery
 
 
 main : Program () Model Msg
 main =
-    Browser.element
+    Browser.application
         { init = init
         , view = view
         , update = update
         , subscriptions = \_ -> Sub.none
+        , onUrlRequest = OnUrlRequest
+        , onUrlChange = OnUrlChange
         }
 
 
 type alias Model =
-    { input : String
+    { key : Nav.Key
+    , url : Url
+    , input : String
     , error : String
     , chap : TaPL.Chapter
     , env : TaPL.Model
     }
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( Model "" "" TaPL.Chap0 TaPL.init, Cmd.none )
+init : () -> Url -> Nav.Key -> ( Model, Cmd Msg )
+init _ url key =
+    ( Model key url "" "" TaPL.Chap0 TaPL.init
+        |> updateModelWithUrl
+    , Cmd.none
+    )
 
 
 type Msg
-    = InputText String
+    = OnUrlRequest Browser.UrlRequest
+    | OnUrlChange Url
+    | InputText String
     | SelectChap TaPL.Chapter
     | ParseInput (Result (List Parser.DeadEnd) TaPL.Model)
     | EvalTerm (Maybe TaPL.Model)
@@ -41,6 +54,15 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        OnUrlRequest (Browser.Internal url) ->
+            ( model, Nav.pushUrl model.key (Url.toString url) )
+
+        OnUrlRequest (Browser.External link) ->
+            ( model, Nav.load link )
+
+        OnUrlChange url ->
+            ( updateModelWithUrl { model | url = url }, Cmd.none )
+
         InputText txt ->
             ( { model | input = txt }, Cmd.none )
 
@@ -60,9 +82,73 @@ update msg model =
             ( { model | error = "Can not eval" }, Cmd.none )
 
 
-view : Model -> Html Msg
+updateModelWithUrl : Model -> Model
+updateModelWithUrl model =
+    let
+        url =
+            model.url
+    in
+    case Url.parse parser { url | path = "" } of
+        Just query ->
+            { model | chap = query.chap, input = query.exp }
+
+        _ ->
+            model
+
+
+type alias Query =
+    { chap : TaPL.Chapter, exp : String }
+
+
+parser : Url.Parser (Query -> a) a
+parser =
+    let
+        chapParesr =
+            UrlQuery.custom "chap" <|
+                \xs ->
+                    List.head xs
+                        |> Maybe.map TaPL.chapterFromString
+                        |> Maybe.withDefault TaPL.Chap0
+
+        expParser =
+            UrlQuery.string "exp"
+                |> UrlQuery.map (Maybe.withDefault "")
+    in
+    Url.top <?> UrlQuery.map2 Query chapParesr expParser
+
+
+title : String
+title =
+    "TaPL's Lambda calculus"
+
+
+view : Model -> Browser.Document Msg
 view model =
-    div []
+    let
+        link =
+            String.concat
+                [ "?chap="
+                , TaPL.chapterToString model.chap
+                , "&exp="
+                , model.input
+                ]
+    in
+    { title = title
+    , body =
+        [ div [ class "Box text-center mt-3 container-sm" ]
+            [ div [ class "Box-header" ]
+                [ h1 [ class "Box-title" ]
+                    [ a [ href link ] [ text title ] ]
+                ]
+            , viewBody model
+            ]
+        ]
+    }
+
+
+viewBody : Model -> Html Msg
+viewBody model =
+    div [ class "Box-Body" ]
         [ pre [ class "text-left d-flex flex-justify-center" ]
             [ text (TaPL.syntax model.chap model.env) ]
         , button
@@ -76,6 +162,7 @@ view model =
             , class "form-control"
             , type_ "text"
             , placeholder "lambda calculus"
+            , value model.input
             ]
             []
         , select
