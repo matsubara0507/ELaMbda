@@ -49,15 +49,6 @@ termParser ctx =
         |> Parser.andThen (appParser ctx)
 
 
-termWithoutAppParser : Context -> Parser Term
-termWithoutAppParser ctx =
-    Parser.oneOf
-        [ parParser ctx
-        , absParser ctx
-        , varParser ctx
-        ]
-
-
 absParser : Context -> Parser Term
 absParser ctx =
     Parser.succeed identity
