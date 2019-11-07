@@ -71,10 +71,20 @@ appParser : Context -> Term -> Parser Term
 appParser ctx t =
     Parser.oneOf
         [ Parser.succeed (TmApp t)
-            |. Parser.symbol " "
-            |. Parser.spaces
-            |= Parser.lazy (\_ -> termParser ctx)
+            |. Parser.backtrackable (Parser.symbol " " |. Parser.spaces)
+            |= Parser.lazy (\_ -> Parser.backtrackable (termWithoutAppParser ctx))
+            |> Parser.andThen Parser.commit
+            |> Parser.andThen (appParser ctx)
         , Parser.succeed t
+        ]
+
+
+termWithoutAppParser : Context -> Parser Term
+termWithoutAppParser ctx =
+    Parser.oneOf
+        [ parParser ctx
+        , absParser ctx
+        , varParser ctx
         ]
 
 

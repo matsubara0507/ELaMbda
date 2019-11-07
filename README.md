@@ -9,5 +9,5 @@ Implement TaPL's Lambda calculus by Elm
 - [ ] Chap. 25
 
 ```
-$ elm make src/Main.elm --output docs/static/main.js
+$ elm make src/Main.elm --output docs/static/main.js --optimize
 ```
