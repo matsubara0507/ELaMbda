@@ -70,7 +70,11 @@ update msg model =
             ( { model | chap = chap, env = TaPL.init }, Cmd.none )
 
         ParseInput (Ok env) ->
-            ( { model | env = env, error = "" }, Cmd.none )
+            if TaPL.typecheck model.chap env then
+                ( { model | env = env, error = "" }, Cmd.none )
+
+            else
+                ( { model | env = TaPL.init, error = "Invalid type" }, Cmd.none )
 
         ParseInput (Err _) ->
             ( { model | env = TaPL.init, error = "Can not parse" }, Cmd.none )

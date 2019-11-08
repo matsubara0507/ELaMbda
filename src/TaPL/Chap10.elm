@@ -9,7 +9,7 @@ syntax : String
 syntax =
     """
 t := x            [variable]
-   | \\x : T. t   [abstraction]
+   | \\x : T. t    [abstraction]
    | t t          [application]
    | true
    | false

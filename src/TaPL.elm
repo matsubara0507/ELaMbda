@@ -1,4 +1,4 @@
-module TaPL exposing (Chapter(..), Model, chapterFromString, chapterToString, display, eval1, init, parse, syntax)
+module TaPL exposing (Chapter(..), Model, chapterFromString, chapterToString, display, eval1, init, parse, syntax, typecheck)
 
 import Parser
 import TaPL.Calculus as Calculus exposing (Calculus)
@@ -50,9 +50,9 @@ chapterToString chap =
 
 
 type alias Model =
-    { chap4 : Calculus () Chap4.Term
-    , chap7 : Calculus Chap7.Context Chap7.Term
-    , chap10 : Calculus Chap10.Context Chap10.Term
+    { chap4 : Calculus () Chap4.Term Never
+    , chap7 : Calculus Chap7.Context Chap7.Term Never
+    , chap10 : Calculus Chap10.Context Chap10.Term Chap10.Ty
     }
 
 
@@ -65,6 +65,7 @@ init =
         , init = ()
         , logs = []
         , syntax = Chap4.syntax
+        , typeof = Nothing
         }
     , chap7 =
         { eval1 = Chap7.eval1
@@ -73,6 +74,7 @@ init =
         , init = []
         , logs = []
         , syntax = Chap7.syntax
+        , typeof = Nothing
         }
     , chap10 =
         { eval1 = Chap10.eval1
@@ -81,6 +83,7 @@ init =
         , init = []
         , logs = []
         , syntax = Chap10.syntax
+        , typeof = Just Chap10.typeof
         }
     }
 
@@ -147,3 +150,19 @@ syntax chap model =
 
         Chap10 ->
             model.chap10.syntax
+
+
+typecheck : Chapter -> Model -> Bool
+typecheck chap model =
+    case chap of
+        Chap0 ->
+            True
+
+        Chap4 ->
+            Calculus.typecheck model.chap4
+
+        Chap7 ->
+            Calculus.typecheck model.chap7
+
+        Chap10 ->
+            Calculus.typecheck model.chap10
