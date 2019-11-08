@@ -2,6 +2,8 @@ module TaPL exposing (Chapter(..), Model, chapterFromString, chapterToString, di
 
 import Parser
 import TaPL.Calculus as Calculus exposing (Calculus)
+import TaPL.Chap10 as Chap10
+import TaPL.Chap10.Parser as Chap10
 import TaPL.Chap4 as Chap4
 import TaPL.Chap4.Parser as Chap4
 import TaPL.Chap7 as Chap7
@@ -12,6 +14,7 @@ type Chapter
     = Chap0
     | Chap4
     | Chap7
+    | Chap10
 
 
 chapterFromString : String -> Chapter
@@ -22,6 +25,9 @@ chapterFromString s =
 
         "chap7" ->
             Chap7
+
+        "chap10" ->
+            Chap10
 
         _ ->
             Chap0
@@ -36,6 +42,9 @@ chapterToString chap =
         Chap7 ->
             "chap7"
 
+        Chap10 ->
+            "chap10"
+
         Chap0 ->
             "chap0"
 
@@ -43,6 +52,7 @@ chapterToString chap =
 type alias Model =
     { chap4 : Calculus () Chap4.Term
     , chap7 : Calculus Chap7.Context Chap7.Term
+    , chap10 : Calculus Chap10.Context Chap10.Term
     }
 
 
@@ -64,6 +74,14 @@ init =
         , logs = []
         , syntax = Chap7.syntax
         }
+    , chap10 =
+        { eval1 = Chap10.eval1
+        , display = Chap10.display
+        , parse = Chap10.parse
+        , init = []
+        , logs = []
+        , syntax = Chap10.syntax
+        }
     }
 
 
@@ -79,6 +97,9 @@ eval1 chap model =
         Chap7 ->
             Maybe.map (\calc -> { model | chap7 = calc }) (Calculus.eval1 model.chap7)
 
+        Chap10 ->
+            Maybe.map (\calc -> { model | chap10 = calc }) (Calculus.eval1 model.chap10)
+
 
 display : Chapter -> Model -> List String
 display chap model =
@@ -91,6 +112,9 @@ display chap model =
 
         Chap7 ->
             Calculus.display model.chap7
+
+        Chap10 ->
+            Calculus.display model.chap10
 
 
 parse : Chapter -> String -> Model -> Result (List Parser.DeadEnd) Model
@@ -105,6 +129,9 @@ parse chap str model =
         Chap7 ->
             Result.map (\calc -> { model | chap7 = calc }) (Calculus.parse str model.chap7)
 
+        Chap10 ->
+            Result.map (\calc -> { model | chap10 = calc }) (Calculus.parse str model.chap10)
+
 
 syntax : Chapter -> Model -> String
 syntax chap model =
@@ -117,3 +144,6 @@ syntax chap model =
 
         Chap7 ->
             model.chap7.syntax
+
+        Chap10 ->
+            model.chap10.syntax

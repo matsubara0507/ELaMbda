@@ -173,6 +173,7 @@ viewBody model =
             [ option [] [ text "Select" ]
             , option [ value (TaPL.chapterToString TaPL.Chap4) ] [ text (TaPL.chapterToString TaPL.Chap4) ]
             , option [ value (TaPL.chapterToString TaPL.Chap7) ] [ text (TaPL.chapterToString TaPL.Chap7) ]
+            , option [ value (TaPL.chapterToString TaPL.Chap10) ] [ text (TaPL.chapterToString TaPL.Chap10) ]
             ]
         , div [] (viewEnv model)
         , if String.isEmpty model.error then
