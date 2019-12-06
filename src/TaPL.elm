@@ -1,4 +1,4 @@
-module TaPL exposing (Chapter(..), Model, chapterFromString, chapterToString, display, eval1, init, parse, syntax, typecheck)
+module TaPL exposing (Chapter(..), chapters, display, eval1, init, parse, syntax, toString, typecheck)
 
 import Parser
 import TaPL.Calculus as Calculus exposing (Calculus)
@@ -12,157 +12,147 @@ import TaPL.Chap7.Parser as Chap7
 
 type Chapter
     = Chap0
-    | Chap4
-    | Chap7
-    | Chap10
+    | Chap4 (Calculus () Chap4.Term Never)
+    | Chap7 (Calculus Chap7.Context Chap7.Term Never)
+    | Chap10 (Calculus Chap10.Context Chap10.Term Chap10.Ty)
 
 
-chapterFromString : String -> Chapter
-chapterFromString s =
+init : String -> Chapter
+init s =
     case s of
         "chap4" ->
             Chap4
+                { eval1 = \_ -> Chap4.eval1
+                , display = Chap4.display
+                , parse = Chap4.parse
+                , init = ()
+                , logs = []
+                , syntax = Chap4.syntax
+                , typeof = Nothing
+                }
 
         "chap7" ->
             Chap7
+                { eval1 = Chap7.eval1
+                , display = Chap7.display
+                , parse = Chap7.parse
+                , init = []
+                , logs = []
+                , syntax = Chap7.syntax
+                , typeof = Nothing
+                }
 
         "chap10" ->
             Chap10
+                { eval1 = Chap10.eval1
+                , display = Chap10.display
+                , parse = Chap10.parse
+                , init = []
+                , logs = []
+                , syntax = Chap10.syntax
+                , typeof = Just Chap10.typeof
+                }
 
         _ ->
             Chap0
 
 
-chapterToString : Chapter -> String
-chapterToString chap =
+toString : Chapter -> String
+toString chap =
     case chap of
-        Chap4 ->
+        Chap4 _ ->
             "chap4"
 
-        Chap7 ->
+        Chap7 _ ->
             "chap7"
 
-        Chap10 ->
+        Chap10 _ ->
             "chap10"
 
         Chap0 ->
             "chap0"
 
 
-type alias Model =
-    { chap4 : Calculus () Chap4.Term Never
-    , chap7 : Calculus Chap7.Context Chap7.Term Never
-    , chap10 : Calculus Chap10.Context Chap10.Term Chap10.Ty
-    }
+chapters : List String
+chapters =
+    [ "chap4", "chap7", "chap10" ]
 
 
-init : Model
-init =
-    { chap4 =
-        { eval1 = \_ -> Chap4.eval1
-        , display = Chap4.display
-        , parse = Chap4.parse
-        , init = ()
-        , logs = []
-        , syntax = Chap4.syntax
-        , typeof = Nothing
-        }
-    , chap7 =
-        { eval1 = Chap7.eval1
-        , display = Chap7.display
-        , parse = Chap7.parse
-        , init = []
-        , logs = []
-        , syntax = Chap7.syntax
-        , typeof = Nothing
-        }
-    , chap10 =
-        { eval1 = Chap10.eval1
-        , display = Chap10.display
-        , parse = Chap10.parse
-        , init = []
-        , logs = []
-        , syntax = Chap10.syntax
-        , typeof = Just Chap10.typeof
-        }
-    }
-
-
-eval1 : Chapter -> Model -> Maybe Model
-eval1 chap model =
+eval1 : Chapter -> Maybe Chapter
+eval1 chap =
     case chap of
         Chap0 ->
             Nothing
 
-        Chap4 ->
-            Maybe.map (\calc -> { model | chap4 = calc }) (Calculus.eval1 model.chap4)
+        Chap4 calc ->
+            Maybe.map Chap4 (Calculus.eval1 calc)
 
-        Chap7 ->
-            Maybe.map (\calc -> { model | chap7 = calc }) (Calculus.eval1 model.chap7)
+        Chap7 calc ->
+            Maybe.map Chap7 (Calculus.eval1 calc)
 
-        Chap10 ->
-            Maybe.map (\calc -> { model | chap10 = calc }) (Calculus.eval1 model.chap10)
+        Chap10 calc ->
+            Maybe.map Chap10 (Calculus.eval1 calc)
 
 
-display : Chapter -> Model -> List String
-display chap model =
+display : Chapter -> List String
+display chap =
     case chap of
         Chap0 ->
             []
 
-        Chap4 ->
-            Calculus.display model.chap4
+        Chap4 calc ->
+            Calculus.display calc
 
-        Chap7 ->
-            Calculus.display model.chap7
+        Chap7 calc ->
+            Calculus.display calc
 
-        Chap10 ->
-            Calculus.display model.chap10
+        Chap10 calc ->
+            Calculus.display calc
 
 
-parse : Chapter -> String -> Model -> Result (List Parser.DeadEnd) Model
-parse chap str model =
+parse : Chapter -> String -> Result (List Parser.DeadEnd) Chapter
+parse chap str =
     case chap of
         Chap0 ->
             Err []
 
-        Chap4 ->
-            Result.map (\calc -> { model | chap4 = calc }) (Calculus.parse str model.chap4)
+        Chap4 calc ->
+            Result.map Chap4 (Calculus.parse str calc)
 
-        Chap7 ->
-            Result.map (\calc -> { model | chap7 = calc }) (Calculus.parse str model.chap7)
+        Chap7 calc ->
+            Result.map Chap7 (Calculus.parse str calc)
 
-        Chap10 ->
-            Result.map (\calc -> { model | chap10 = calc }) (Calculus.parse str model.chap10)
+        Chap10 calc ->
+            Result.map Chap10 (Calculus.parse str calc)
 
 
-syntax : Chapter -> Model -> String
-syntax chap model =
+syntax : Chapter -> String
+syntax chap =
     case chap of
         Chap0 ->
             ""
 
-        Chap4 ->
-            model.chap4.syntax
+        Chap4 calc ->
+            calc.syntax
 
-        Chap7 ->
-            model.chap7.syntax
+        Chap7 calc ->
+            calc.syntax
 
-        Chap10 ->
-            model.chap10.syntax
+        Chap10 calc ->
+            calc.syntax
 
 
-typecheck : Chapter -> Model -> Bool
-typecheck chap model =
+typecheck : Chapter -> Bool
+typecheck chap =
     case chap of
         Chap0 ->
             True
 
-        Chap4 ->
-            Calculus.typecheck model.chap4
+        Chap4 calc ->
+            Calculus.typecheck calc
 
-        Chap7 ->
-            Calculus.typecheck model.chap7
+        Chap7 calc ->
+            Calculus.typecheck calc
 
-        Chap10 ->
-            Calculus.typecheck model.chap10
+        Chap10 calc ->
+            Calculus.typecheck calc

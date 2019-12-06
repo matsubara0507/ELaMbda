@@ -30,13 +30,12 @@ type alias Model =
     , input : String
     , error : String
     , chap : TaPL.Chapter
-    , env : TaPL.Model
     }
 
 
 init : () -> Url -> Nav.Key -> ( Model, Cmd Msg )
 init _ url key =
-    ( Model key url "" "" TaPL.Chap0 TaPL.init
+    ( Model key url "" "" TaPL.Chap0
         |> updateModelWithUrl
     , Cmd.none
     )
@@ -47,8 +46,8 @@ type Msg
     | OnUrlChange Url
     | InputText String
     | SelectChap TaPL.Chapter
-    | ParseInput (Result (List Parser.DeadEnd) TaPL.Model)
-    | EvalTerm (Maybe TaPL.Model)
+    | ParseInput (Result (List Parser.DeadEnd) TaPL.Chapter)
+    | EvalTerm (Maybe TaPL.Chapter)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -67,20 +66,20 @@ update msg model =
             ( { model | input = txt }, Cmd.none )
 
         SelectChap chap ->
-            ( { model | chap = chap, env = TaPL.init }, Cmd.none )
+            ( { model | chap = chap }, Cmd.none )
 
-        ParseInput (Ok env) ->
-            if TaPL.typecheck model.chap env then
-                ( { model | env = env, error = "" }, Cmd.none )
+        ParseInput (Ok chap) ->
+            if TaPL.typecheck chap then
+                ( { model | chap = chap, error = "" }, Cmd.none )
 
             else
-                ( { model | env = TaPL.init, error = "Invalid type" }, Cmd.none )
+                ( { model | chap = TaPL.init (TaPL.toString chap), error = "Invalid type" }, Cmd.none )
 
         ParseInput (Err _) ->
-            ( { model | env = TaPL.init, error = "Can not parse" }, Cmd.none )
+            ( { model | chap = TaPL.init (TaPL.toString model.chap), error = "Can not parse" }, Cmd.none )
 
-        EvalTerm (Just env) ->
-            ( { model | env = env }, Cmd.none )
+        EvalTerm (Just chap) ->
+            ( { model | chap = chap }, Cmd.none )
 
         EvalTerm _ ->
             ( { model | error = "Can not eval" }, Cmd.none )
@@ -111,7 +110,7 @@ parser =
             UrlQuery.custom "chap" <|
                 \xs ->
                     List.head xs
-                        |> Maybe.map TaPL.chapterFromString
+                        |> Maybe.map TaPL.init
                         |> Maybe.withDefault TaPL.Chap0
 
         expParser =
@@ -132,7 +131,7 @@ view model =
         link =
             String.concat
                 [ "?chap="
-                , TaPL.chapterToString model.chap
+                , TaPL.toString model.chap
                 , "&exp="
                 , model.input
                 ]
@@ -154,9 +153,9 @@ viewBody : Model -> Html Msg
 viewBody model =
     div [ class "Box-Body" ]
         [ pre [ class "text-left d-flex flex-justify-center" ]
-            [ text (TaPL.syntax model.chap model.env) ]
+            [ text (TaPL.syntax model.chap) ]
         , button
-            [ onClick (ParseInput <| TaPL.parse model.chap model.input model.env)
+            [ onClick (ParseInput <| TaPL.parse model.chap model.input)
             , class "btn my-2"
             , type_ "button"
             ]
@@ -170,15 +169,13 @@ viewBody model =
             ]
             []
         , select
-            [ onInput (SelectChap << TaPL.chapterFromString)
+            [ onInput (SelectChap << TaPL.init)
             , class "form-select"
             , attribute "aria-label" "Important decision"
             ]
-            [ option [] [ text "Select" ]
-            , option [ value (TaPL.chapterToString TaPL.Chap4) ] [ text (TaPL.chapterToString TaPL.Chap4) ]
-            , option [ value (TaPL.chapterToString TaPL.Chap7) ] [ text (TaPL.chapterToString TaPL.Chap7) ]
-            , option [ value (TaPL.chapterToString TaPL.Chap10) ] [ text (TaPL.chapterToString TaPL.Chap10) ]
-            ]
+            (option [] [ text "Select" ]
+                :: List.map (\s -> option [ value s ] [ text s ]) TaPL.chapters
+            )
         , div [] (viewEnv model)
         , if String.isEmpty model.error then
             div [] []
@@ -190,7 +187,7 @@ viewBody model =
 
 viewEnv : Model -> List (Html Msg)
 viewEnv model =
-    case TaPL.display model.chap model.env of
+    case TaPL.display model.chap of
         [] ->
             []
 
@@ -200,7 +197,7 @@ viewEnv model =
                 |> List.intersperse (div [ class "my-1" ] [ text "↓" ])
                 |> div []
             , button
-                [ onClick (EvalTerm <| TaPL.eval1 model.chap model.env)
+                [ onClick (EvalTerm <| TaPL.eval1 model.chap)
                 , class "btn btn-sm my-2"
                 , type_ "button"
                 ]
