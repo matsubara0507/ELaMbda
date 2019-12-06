@@ -97,7 +97,7 @@ appParser ctx t =
     Parser.oneOf
         [ Parser.succeed (TmApp t)
             |. Parser.backtrackable (Parser.symbol " " |. Parser.spaces)
-            |= Parser.lazy (\_ -> Parser.backtrackable (termWithoutAppParser ctx))
+            |= Parser.lazy (\_ -> termWithoutAppParser ctx)
             |> Parser.andThen Parser.commit
             |> Parser.andThen (appParser ctx)
         , Parser.succeed t

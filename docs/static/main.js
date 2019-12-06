@@ -7424,8 +7424,7 @@ var $author$project$TaPL$Chap10$Parser$appParser = F2(
 										$elm$parser$Parser$spaces))),
 							$elm$parser$Parser$lazy(
 								function (_v4) {
-									return $elm$parser$Parser$backtrackable(
-										$author$project$TaPL$Chap10$Parser$termWithoutAppParser(ctx));
+									return $author$project$TaPL$Chap10$Parser$termWithoutAppParser(ctx);
 								})))),
 					$elm$parser$Parser$succeed(t)
 				]));
@@ -8021,8 +8020,7 @@ var $author$project$TaPL$Chap7$Parser$appParser = F2(
 										$elm$parser$Parser$spaces))),
 							$elm$parser$Parser$lazy(
 								function (_v1) {
-									return $elm$parser$Parser$backtrackable(
-										$author$project$TaPL$Chap7$Parser$termWithoutAppParser(ctx));
+									return $author$project$TaPL$Chap7$Parser$termWithoutAppParser(ctx);
 								})))),
 					$elm$parser$Parser$succeed(t)
 				]));
