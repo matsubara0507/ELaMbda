@@ -7515,6 +7515,7 @@ var $author$project$TaPL$Chap10$Parser$termWithoutAppParser = function (ctx) {
 			[
 				$author$project$TaPL$Chap10$Parser$parParser(ctx),
 				$author$project$TaPL$Chap10$Parser$absParser(ctx),
+				$author$project$TaPL$Chap10$Parser$valParser,
 				$author$project$TaPL$Chap10$Parser$varParser(ctx)
 			]));
 };

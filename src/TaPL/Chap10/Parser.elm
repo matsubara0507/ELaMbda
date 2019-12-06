@@ -109,6 +109,7 @@ termWithoutAppParser ctx =
     Parser.oneOf
         [ parParser ctx
         , absParser ctx
+        , valParser
         , varParser ctx
         ]
 
