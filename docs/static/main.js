@@ -8086,39 +8086,30 @@ var $author$project$TaPL$Chap10$addbinding = F3(
 			_Utils_Tuple2(x, bind),
 			ctx);
 	});
-var $elm$core$Maybe$andThen = F2(
-	function (callback, maybeValue) {
-		if (!maybeValue.$) {
-			var value = maybeValue.a;
-			return callback(value);
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $elm$core$Tuple$second = function (_v0) {
-	var y = _v0.b;
-	return y;
-};
-var $elm$core$List$tail = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(xs);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
 var $author$project$TaPL$Chap10$getbinding = F2(
 	function (ctx, n) {
-		return (n <= 0) ? A2(
-			$elm$core$Maybe$map,
-			$elm$core$Tuple$second,
-			$elm$core$List$head(ctx)) : A2(
-			$elm$core$Maybe$andThen,
-			function (c) {
-				return A2($author$project$TaPL$Chap10$getbinding, c, n - 1);
-			},
-			$elm$core$List$tail(ctx));
+		getbinding:
+		while (true) {
+			var _v0 = _Utils_Tuple2(ctx, n);
+			if (!_v0.a.b) {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				if (!_v0.b) {
+					var _v1 = _v0.a;
+					var _v2 = _v1.a;
+					var bind = _v2.b;
+					return $elm$core$Maybe$Just(bind);
+				} else {
+					var _v3 = _v0.a;
+					var next = _v3.b;
+					var $temp$ctx = next,
+						$temp$n = n - 1;
+					ctx = $temp$ctx;
+					n = $temp$n;
+					continue getbinding;
+				}
+			}
+		}
 	});
 var $author$project$TaPL$Chap10$getTypeFromContext = F2(
 	function (ctx, idx) {
@@ -8734,6 +8725,15 @@ var $author$project$TaPL$display = function (chap) {
 			return $author$project$TaPL$Calculus$display(calc);
 	}
 };
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (!maybeValue.$) {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
 var $author$project$TaPL$Calculus$eval1 = function (calc) {
 	return A2(
 		$elm$core$Maybe$map,

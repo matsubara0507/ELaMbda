@@ -50,11 +50,15 @@ addbinding ctx x bind =
 
 getbinding : Context -> Int -> Maybe Binding
 getbinding ctx n =
-    if n <= 0 then
-        List.head ctx |> Maybe.map Tuple.second
+    case ( ctx, n ) of
+        ( [], _ ) ->
+            Nothing
 
-    else
-        List.tail ctx |> Maybe.andThen (\c -> getbinding c (n - 1))
+        ( ( _, bind ) :: _, 0 ) ->
+            Just bind
+
+        ( _ :: next, _ ) ->
+            getbinding next (n - 1)
 
 
 getTypeFromContext : Context -> Int -> Maybe Ty
